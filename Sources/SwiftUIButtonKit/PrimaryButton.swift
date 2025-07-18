@@ -3,7 +3,7 @@
 
 import SwiftUI
 
-struct PrimaryButton: View {
+public struct PrimaryButton: View {
     private let title: String
     private let action: () -> Void
 
