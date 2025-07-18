@@ -9,7 +9,7 @@ import SwiftUI
 
 // MARK: - Bootstrap Button Type
 
-enum BootstrapButtonType {
+public enum BootstrapButtonType {
     case primary, secondary, success, danger, warning, info, light, dark, black, whilte,
          blue, blue100, blue200, blue300, blue400, blue500, blue600, blue700, blue800, blue900,
          indigo, indigo100, indigo200, indigo300, indigo400, indigo500, indigo600, indigo700, indigo800, indigo900,
