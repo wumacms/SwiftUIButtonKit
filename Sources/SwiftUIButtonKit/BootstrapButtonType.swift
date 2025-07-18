@@ -876,11 +876,33 @@ public extension Color {
         self.init(red: r, green: g, blue: b)
     }
     
+    //    func isLight(threshold: Double = 0.6) -> Bool {
+    //        let uiColor = UIColor(self)
+    //        var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 1
+    //        uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+    //        let luminance = 0.299 * red + 0.587 * green + 0.114 * blue
+    //        return luminance > threshold
+    //    }
+    
+    /// 判断颜色是否为浅色
     func isLight(threshold: Double = 0.6) -> Bool {
-        let uiColor = NSColor(self)
-        // let uiColor = UIColor(self)
+#if canImport(UIKit)
+        // iOS/tvOS 使用 UIKit
+        let uiColor = UIColor(self)
         var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 1
         uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+#elseif canImport(AppKit)
+        // macOS 使用 NSColor
+        let nsColor = NSColor(self)
+        let rgbColor = nsColor.usingColorSpace(.deviceRGB) ?? .black
+        let red = rgbColor.redComponent
+        let green = rgbColor.greenComponent
+        let blue = rgbColor.blueComponent
+#else
+        // Fallback，默认使用黑色
+        let red = 0.0, green = 0.0, blue = 0.0
+#endif
+        
         let luminance = 0.299 * red + 0.587 * green + 0.114 * blue
         return luminance > threshold
     }
