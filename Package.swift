@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "SwiftUIButtonKit",
     platforms: [
-        .iOS(.v12),
+        .iOS(.v13),
         .macOS(.v11),
         .tvOS(.v13),
         .watchOS(.v6)
