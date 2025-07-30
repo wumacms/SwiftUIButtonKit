@@ -171,20 +171,56 @@ public enum BootstrapButtonType {
 
 // MARK: - Bootstrap Button Style
 
-struct BootstrapButtonStyle: ButtonStyle {
+public struct BootstrapButtonStyle: ButtonStyle {
+    public enum Size {
+        case small
+        case medium
+        case large
+        
+        var font: Font {
+            switch self {
+            case .small: return .system(size: 14, weight: .semibold)
+            case .medium: return .system(size: 16, weight: .semibold)
+            case .large: return .system(size: 18, weight: .semibold)
+            }
+        }
+        
+        var horizontalPadding: CGFloat {
+            switch self {
+            case .small: return 12
+            case .medium: return 16
+            case .large: return 20
+            }
+        }
+        
+        var minHeight: CGFloat {
+            switch self {
+            case .small: return 36
+            case .medium: return 44
+            case .large: return 52
+            }
+        }
+    }
+    
+    // 新增宽度模式枚举
+    public enum WidthMode {
+        case compact  // 紧缩型
+        case expanded // 扩张型
+    }
+    
     var type: BootstrapButtonType
     var isOutline: Bool = false
     var isDisabled: Bool = false
-    var fullWidth: Bool = false
+    var widthMode: WidthMode = .expanded  // 替换原来的 fullWidth
     var cornerRadius: CGFloat = 6
+    var size: Size = .medium
     
-    func makeBody(configuration: Configuration) -> some View {
+    public func makeBody(configuration: Configuration) -> some View {
         let pressed = configuration.isPressed
         let baseOpacity = isDisabled ? 0.65 : 1.0
         
         let bgColor: Color = {
             if isOutline {
-                // 使用`Color.white.opacity(0.000000001)`替代`Color.clear`，解决按钮部分区域点击无反应的问题
                 return pressed ? type.backgroundColor : Color.white.opacity(0.000000001)
             } else {
                 return type.backgroundColor.opacity(pressed ? 0.8 : 1)
@@ -206,11 +242,11 @@ struct BootstrapButtonStyle: ButtonStyle {
         }()
         
         return configuration.label
-            .font(.system(size: 16, weight: .semibold))
-            .padding(.horizontal, 16)
+            .font(size.font)
+            .padding(.horizontal, size.horizontalPadding)
             .frame(
-                maxWidth: fullWidth ? .infinity : nil,
-                minHeight: 44
+                maxWidth: widthMode == .expanded ? .infinity : nil,
+                minHeight: size.minHeight
             )
             .background(
                 RoundedRectangle(cornerRadius: cornerRadius)
@@ -227,547 +263,547 @@ struct BootstrapButtonStyle: ButtonStyle {
 
 // MARK: - View Extension
 public extension View {
-    private func bootstrapButton(_ type: BootstrapButtonType, outline: Bool = false, disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        self.buttonStyle(BootstrapButtonStyle(type: type, isOutline: outline, isDisabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius))
+    private func bootstrapButton(_ type: BootstrapButtonType, size: BootstrapButtonStyle.Size = .medium, outline: Bool = false, disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        self.buttonStyle(BootstrapButtonStyle(type: type, isOutline: outline, isDisabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius, size: size))
             .disabled(disabled)
     }
     
-    func primaryButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(.primary, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func primaryButton(_ size: BootstrapButtonStyle.Size = .medium, disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(.primary, size: size, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
-    func secondaryButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(.secondary, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func secondaryButton(_ size: BootstrapButtonStyle.Size = .medium, disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(.secondary, size: size, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
-    func successButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(.success, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func successButton(_ size: BootstrapButtonStyle.Size = .medium, disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(.success, size: size, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
-    func dangerButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(.danger, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func dangerButton(_ size: BootstrapButtonStyle.Size = .medium, disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(.danger, size: size, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
-    func warningButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(.warning, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func warningButton(_ size: BootstrapButtonStyle.Size = .medium, disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(.warning, size: size, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
-    func infoButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(.info, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func infoButton(_ size: BootstrapButtonStyle.Size = .medium, disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(.info, size: size, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
-    func lightButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(.light, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func lightButton(_ size: BootstrapButtonStyle.Size = .medium, disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(.light, size: size, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
-    func darkButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(.dark, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-    }
-    
-    func outlinePrimaryButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(.primary, outline: true, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-    }
-    func outlineSecondaryButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(.secondary, outline: true, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-    }
-    func outlineSuccessButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(.success, outline: true, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-    }
-    func outlineDangerButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(.danger, outline: true, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-    }
-    func outlineWarningButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(.warning, outline: true, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-    }
-    func outlineInfoButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(.info, outline: true, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-    }
-    func outlineLightButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(.light, outline: true, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-    }
-    func outlineDarkButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(.dark, outline: true, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func darkButton(_ size: BootstrapButtonStyle.Size = .medium, disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(.dark, size: size, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
     
-    func blackButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(.black, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func outlinePrimaryButton(disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(.primary, outline: true, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
+    }
+    func outlineSecondaryButton(disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(.secondary, outline: true, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
+    }
+    func outlineSuccessButton(disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(.success, outline: true, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
+    }
+    func outlineDangerButton(disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(.danger, outline: true, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
+    }
+    func outlineWarningButton(disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(.warning, outline: true, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
+    }
+    func outlineInfoButton(disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(.info, outline: true, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
+    }
+    func outlineLightButton(disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(.light, outline: true, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
+    }
+    func outlineDarkButton(disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(.dark, outline: true, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
     
-    func whiteButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(.whilte, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func blackButton(disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(.black, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
     
-    // MARK: - Indigo Buttons
-    func blueButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(.blue, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func whiteButton(disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(.whilte, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
-    
-    func blueButton(_ type: BootstrapButtonType, disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(type, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-    }
-    
-//    func blue100Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.blue100, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    func blue200Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.blue200, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    func blue300Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.blue300, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    func blue400Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.blue400, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    func blue500Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.blue500, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    func blue600Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.blue600, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    func blue700Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.blue700, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    func blue800Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.blue800, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    func blue900Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.blue900, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
     
     // MARK: - Indigo Buttons
-    func indigoButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        indigoButton(.indigo, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func blueButton(disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(.blue, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
     
-    func indigoButton(_ type: BootstrapButtonType, disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(type, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func blueButton(_ type: BootstrapButtonType, disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(type, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
     
-//    func indigo100Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.indigo100, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func indigo200Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.indigo200, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func indigo300Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.indigo300, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func indigo400Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.indigo400, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func indigo500Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.indigo500, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func indigo600Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.indigo600, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func indigo700Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.indigo700, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func indigo800Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.indigo800, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func indigo900Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.indigo900, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
+    //    func blue100Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.blue100, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //    func blue200Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.blue200, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //    func blue300Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.blue300, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //    func blue400Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.blue400, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //    func blue500Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.blue500, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //    func blue600Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.blue600, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //    func blue700Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.blue700, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //    func blue800Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.blue800, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //    func blue900Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.blue900, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    
+    // MARK: - Indigo Buttons
+    func indigoButton(disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        indigoButton(.indigo, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
+    }
+    
+    func indigoButton(_ type: BootstrapButtonType, disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(type, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
+    }
+    
+    //    func indigo100Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.indigo100, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func indigo200Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.indigo200, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func indigo300Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.indigo300, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func indigo400Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.indigo400, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func indigo500Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.indigo500, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func indigo600Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.indigo600, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func indigo700Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.indigo700, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func indigo800Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.indigo800, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func indigo900Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.indigo900, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
     
     // MARK: - Purple Buttons
-    func purpleButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        purpleButton(.purple, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func purpleButton(disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        purpleButton(.purple, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
     
-    func purpleButton(_ type: BootstrapButtonType, disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(type, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func purpleButton(_ type: BootstrapButtonType, disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(type, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
     
-//    func purple100Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.purple100, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func purple200Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.purple200, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func purple300Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.purple300, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func purple400Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.purple400, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func purple500Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.purple500, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func purple600Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.purple600, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func purple700Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.purple700, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func purple800Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.purple800, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func purple900Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.purple900, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
+    //    func purple100Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.purple100, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func purple200Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.purple200, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func purple300Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.purple300, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func purple400Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.purple400, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func purple500Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.purple500, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func purple600Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.purple600, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func purple700Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.purple700, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func purple800Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.purple800, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func purple900Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.purple900, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
     
     // MARK: - Pink Buttons
-    func pinkButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        pinkButton(.pink, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func pinkButton(disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        pinkButton(.pink, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
     
-    func pinkButton(_ type: BootstrapButtonType, disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(type, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func pinkButton(_ type: BootstrapButtonType, disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(type, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
     
-//    func pink100Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.pink100, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    func pink200Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.pink200, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    func pink300Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.pink300, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    func pink400Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.pink400, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    func pink500Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.pink500, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    func pink600Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.pink600, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    func pink700Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.pink700, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    func pink800Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.pink800, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    func pink900Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.pink900, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
+    //    func pink100Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.pink100, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //    func pink200Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.pink200, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //    func pink300Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.pink300, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //    func pink400Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.pink400, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //    func pink500Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.pink500, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //    func pink600Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.pink600, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //    func pink700Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.pink700, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //    func pink800Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.pink800, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //    func pink900Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.pink900, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
     
     // MARK: - Red Buttons
-    func redButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        redButton(.red, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func redButton(disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        redButton(.red, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
     
-    func redButton(_ type: BootstrapButtonType, disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(type, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func redButton(_ type: BootstrapButtonType, disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(type, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
     
-//    func red100Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.red100, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func red200Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.red200, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func red300Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.red300, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func red400Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.red400, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func red500Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.red500, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func red600Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.red600, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func red700Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.red700, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func red800Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.red800, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func red900Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.red900, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
+    //    func red100Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.red100, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func red200Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.red200, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func red300Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.red300, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func red400Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.red400, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func red500Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.red500, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func red600Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.red600, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func red700Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.red700, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func red800Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.red800, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func red900Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.red900, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
     
     // MARK: - Orange Buttons
-    func orangeButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        orangeButton(.orange, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func orangeButton(disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        orangeButton(.orange, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
     
-    func orangeButton(_ type: BootstrapButtonType, disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(type, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func orangeButton(_ type: BootstrapButtonType, disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(type, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
     
-//    func orange100Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.orange100, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func orange200Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.orange200, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func orange300Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.orange300, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func orange400Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.orange400, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func orange500Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.orange500, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func orange600Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.orange600, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func orange700Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.orange700, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func orange800Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.orange800, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func orange900Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.orange900, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
+    //    func orange100Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.orange100, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func orange200Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.orange200, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func orange300Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.orange300, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func orange400Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.orange400, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func orange500Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.orange500, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func orange600Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.orange600, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func orange700Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.orange700, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func orange800Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.orange800, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func orange900Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.orange900, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
     
     // MARK: - Yellow Buttons
-    func yellowButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        yellowButton(.yellow, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func yellowButton(disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        yellowButton(.yellow, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
     
-    func yellowButton(_ type: BootstrapButtonType, disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(type, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func yellowButton(_ type: BootstrapButtonType, disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(type, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
     
-//    func yellow100Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.yellow100, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func yellow200Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.yellow200, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func yellow300Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.yellow300, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func yellow400Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.yellow400, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func yellow500Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.yellow500, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func yellow600Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.yellow600, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func yellow700Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.yellow700, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func yellow800Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.yellow800, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func yellow900Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.yellow900, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
+    //    func yellow100Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.yellow100, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func yellow200Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.yellow200, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func yellow300Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.yellow300, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func yellow400Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.yellow400, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func yellow500Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.yellow500, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func yellow600Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.yellow600, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func yellow700Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.yellow700, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func yellow800Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.yellow800, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func yellow900Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.yellow900, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
     
     // MARK: - Green Buttons
-    func greenButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        greenButton(.green, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func greenButton(disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        greenButton(.green, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
     
-    func greenButton(_ type: BootstrapButtonType, disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(type, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func greenButton(_ type: BootstrapButtonType, disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(type, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
     
-//    func green100Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.green100, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func green200Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.green200, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func green300Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.green300, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func green400Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.green400, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func green500Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.green500, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func green600Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.green600, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func green700Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.green700, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func green800Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.green800, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func green900Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.green900, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
+    //    func green100Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.green100, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func green200Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.green200, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func green300Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.green300, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func green400Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.green400, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func green500Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.green500, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func green600Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.green600, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func green700Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.green700, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func green800Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.green800, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func green900Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.green900, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
     
     // MARK: - Teal Buttons
-    func tealButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        tealButton(.teal, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func tealButton(disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        tealButton(.teal, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
     
-    func tealButton(_ type: BootstrapButtonType, disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(type, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func tealButton(_ type: BootstrapButtonType, disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(type, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
     
-//    func teal100Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.teal100, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func teal200Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.teal200, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func teal300Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.teal300, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func teal400Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.teal400, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func teal500Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.teal500, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func teal600Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.teal600, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func teal700Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.teal700, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func teal800Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.teal800, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func teal900Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.teal900, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
+    //    func teal100Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.teal100, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func teal200Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.teal200, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func teal300Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.teal300, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func teal400Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.teal400, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func teal500Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.teal500, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func teal600Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.teal600, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func teal700Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.teal700, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func teal800Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.teal800, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func teal900Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.teal900, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
     
     // MARK: - Cyan Buttons
-    func cyanButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        cyanButton(.cyan, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func cyanButton(disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        cyanButton(.cyan, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
     
-    func cyanButton(_ type: BootstrapButtonType, disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(type, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func cyanButton(_ type: BootstrapButtonType, disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(type, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
     
-//    func cyan100Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.cyan100, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func cyan200Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.cyan200, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func cyan300Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.cyan300, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func cyan400Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.cyan400, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func cyan500Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.cyan500, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func cyan600Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.cyan600, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func cyan700Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.cyan700, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func cyan800Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.cyan800, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func cyan900Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.cyan900, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
+    //    func cyan100Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.cyan100, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func cyan200Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.cyan200, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func cyan300Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.cyan300, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func cyan400Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.cyan400, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func cyan500Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.cyan500, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func cyan600Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.cyan600, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func cyan700Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.cyan700, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func cyan800Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.cyan800, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func cyan900Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.cyan900, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
     
     // MARK: - Gray Buttons
-    func grayButton(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        grayButton(.gray, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func grayButton(disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        grayButton(.gray, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
     
-    func grayButton(_ type: BootstrapButtonType, disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-        bootstrapButton(type, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    func grayButton(_ type: BootstrapButtonType, disabled: Bool = false, widthMode: BootstrapButtonStyle.WidthMode = .expanded, cornerRadius: CGFloat = 6) -> some View {
+        bootstrapButton(type, disabled: disabled, widthMode: widthMode, cornerRadius: cornerRadius)
     }
     
-//    func gray100Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.gray100, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func gray200Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.gray200, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func gray300Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.gray300, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func gray400Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.gray400, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func gray500Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.gray500, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func gray600Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.gray600, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func gray700Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.gray700, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func gray800Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.gray800, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
-//    
-//    func gray900Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
-//        bootstrapButton(.gray900, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
-//    }
+    //    func gray100Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.gray100, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func gray200Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.gray200, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func gray300Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.gray300, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func gray400Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.gray400, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func gray500Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.gray500, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func gray600Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.gray600, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func gray700Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.gray700, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func gray800Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.gray800, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
+    //
+    //    func gray900Button(disabled: Bool = false, fullWidth: Bool = false, cornerRadius: CGFloat = 6) -> some View {
+    //        bootstrapButton(.gray900, disabled: disabled, fullWidth: fullWidth, cornerRadius: cornerRadius)
+    //    }
 }
 
 // MARK: - Color Extension (HEX Init + Lightness Check)
