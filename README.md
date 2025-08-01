@@ -25,7 +25,7 @@ SwiftUIButtonKit 是一个受 Bootstrap 启发的 SwiftUI 按钮组件库，提�
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/wumacms/SwiftUIButtonKit.git", from: "1.0")
+    .package(url: "https://github.com/wumacms/SwiftUIButtonKit.git", from: "1.1.4")
 ]
 ```
 
