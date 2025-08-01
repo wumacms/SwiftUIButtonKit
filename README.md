@@ -2,7 +2,7 @@
 
 ![SwiftUI](https://img.shields.io/badge/SwiftUI-5.9+-blue.svg) ![Platform](https://img.shields.io/badge/Platform-iOS%20|%20macOS%20|%20watchOS%20|%20tvOS-lightgrey.svg)
 
-SwiftUIButtonKit 是一个受 Bootstrap 启发使用 SwiftUI 开发的按钮组件库，提供了一系列美观且易于使用的按钮样式，帮助开发者快速构建现代化的用户界面。
+SwiftUIButtonKit 是一个受到 Bootstrap 启发使用 SwiftUI 开发的按钮组件库，提供了一系列美观且易于使用的按钮样式，帮助开发者快速构建现代化的用户界面。
 
 ## 特性
 
